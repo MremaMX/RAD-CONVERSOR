@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Conversor de Radiación + Simulador por Elemento</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #0d0d0d;
+      --bg-sec:      #1a1a1a;
+      --bg-card:     #222222;
+      --border:      #2e2e2e;
+      --border2:     #3e3e3e;
+      --text:        #e0e0e0;
+      --text-dim:    #888888;
+      --text-faint:  #555555;
+      --accent:      #f5c518;
+      --accent-glow: rgba(245,197,24,0.22);
+    }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 28px 16px 60px;
+      line-height: 1.5;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+    }
+
+    .approx-note {
+      max-width: 1100px;
+      margin: 0 auto 28px;
+      text-align: center;
+      background: var(--bg-sec);
+      border: 1px solid #3a3a00;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-size: 0.8rem;
+      color: #999;
+      font-style: italic;
+    }
+
+    /* ── SECTIONS ─────────────────────────────────────────────────── */
+    .section {
+      background: var(--bg-sec);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 22px 26px;
+      margin-bottom: 24px;
+      max-width: 1100px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      border-left: 4px solid var(--accent);
+      padding-left: 11px;
+      margin-bottom: 14px;
+    }
+
+    .section-desc {
+      font-size: 0.8rem;
+      color: var(--text-faint);
+      margin-bottom: 14px;
+      font-style: italic;
+    }
+
+    /* ── PERIODIC TABLE ──────────────────────────────────────────── */
+    .pt-wrapper {
+      overflow-x: auto;
+      padding-bottom: 6px;
+    }
+
+    .pt-grid {
+      display: grid;
+      grid-template-columns: repeat(18, 52px);
+      grid-template-rows: repeat(7, 52px) 10px 52px 52px;
+      gap: 2px;
+      min-width: 956px;
+    }
+
+    .el-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      cursor: pointer;
+      padding: 2px 1px;
+      border: 1px solid transparent;
+      transition: filter 0.13s, transform 0.1s, border-color 0.13s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .el-cell:hover {
+      filter: brightness(1.4);
+      transform: scale(1.08);
+      z-index: 5;
+    }
+
+    .el-cell.selected {
+      border-color: var(--accent) !important;
+      box-shadow: 0 0 0 2px var(--accent);
+      z-index: 6;
+    }
+
+    .el-z {
+      font-size: 0.52rem;
+      color: rgba(255,255,255,0.65);
+      line-height: 1;
+      align-self: flex-start;
+      padding-left: 3px;
+      width: 100%;
+    }
+
+    .el-sym {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.1;
+    }
+
+    .el-name {
+      font-size: 0.42rem;
+      color: rgba(255,255,255,0.72);
+      text-align: center;
+      line-height: 1.1;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      padding: 0 2px;
+    }
+
+    /* Category background colours */
+    .cat-alkali          { background: #c0392b; }
+    .cat-alkaline        { background: #e67e22; }
+    .cat-transition      { background: #2980b9; }
+    .cat-post-transition { background: #7f8c8d; }
+    .cat-metalloid       { background: #27ae60; }
+    .cat-nonmetal        { background: #16a085; }
+    .cat-halogen         { background: #8e44ad; }
+    .cat-noble-gas       { background: #2c3e50; }
+    .cat-lanthanide      { background: #d35400; }
+    .cat-actinide        { background: #922b21; }
+
+    .pt-placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      font-size: 0.5rem;
+      font-weight: 700;
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    .pt-gap { grid-row: 8; grid-column: 1/-1; }
+
+    /* ── LEGEND ─────────────────────────────────────────────────── */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 18px;
+      margin-top: 14px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.7rem;
+      color: var(--text-dim);
+    }
+
+    .legend-dot {
+      width: 13px;
+      height: 13px;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+
+    /* ── ELEMENT CARD ───────────────────────────────────────────── */
+    .el-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border2);
+      border-radius: 10px;
+      padding: 18px 22px;
+      display: flex;
+      gap: 22px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .el-symbol-big {
+      font-size: 3.4rem;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1;
+      min-width: 80px;
+      text-align: center;
+    }
+
+    .el-info { flex: 1; min-width: 180px; }
+
+    .el-info-name {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .el-info-row {
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      line-height: 1.75;
+    }
+
+    .el-info-row b { color: var(--text); font-weight: 600; }
+
+    .el-isotope-box {
+      flex: 1;
+      min-width: 200px;
+      background: #1a1800;
+      border: 1px solid #3a3600;
+      border-radius: 8px;
+      padding: 12px 15px;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      line-height: 1.85;
+    }
+
+    .el-isotope-box b { color: var(--accent); font-weight: 600; }
+
+    .el-placeholder {
+      color: var(--text-faint);
+      font-style: italic;
+      font-size: 0.88rem;
+      padding: 18px 4px;
+    }
+
+    /* ── PARAMETERS PANEL ──────────────────────────────────────── */
+    .params-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .param-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 13px 15px;
+    }
+
+    .param-label {
+      font-size: 0.74rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 9px;
+    }
+
+    .param-row {
+      display: flex;
+      gap: 7px;
+      align-items: center;
+      margin-bottom: 7px;
+    }
+
+    .param-input {
+      flex: 1;
+      background: #141414;
+      border: 1px solid var(--border2);
+      border-radius: 5px;
+      padding: 7px 9px;
+      color: var(--text);
+      font-size: 0.88rem;
+      outline: none;
+      min-width: 0;
+      transition: border-color 0.18s, box-shadow 0.18s;
+    }
+
+    .param-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-glow);
+    }
+
+    .param-select {
+      background: #141414;
+      border: 1px solid var(--border2);
+      border-radius: 5px;
+      padding: 7px 7px;
+      color: var(--text);
+      font-size: 0.84rem;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .param-select:focus { border-color: var(--accent); }
+
+    .param-slider {
+      width: 100%;
+      accent-color: var(--accent);
+      margin-bottom: 5px;
+      cursor: pointer;
+    }
+
+    .atoms-display {
+      font-size: 1.0rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-align: center;
+      margin-bottom: 7px;
+      font-family: monospace;
+    }
+
+    .presets {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+
+    .preset-btn {
+      background: #2a2a2a;
+      border: 1px solid var(--border2);
+      border-radius: 4px;
+      color: var(--text-dim);
+      font-size: 0.7rem;
+      padding: 4px 8px;
+      cursor: pointer;
+      transition: background 0.14s, color 0.14s;
+    }
+
+    .preset-btn:hover { background: #3a3a3a; color: #fff; }
+
+    /* ── CALC BUTTON ──────────────────────────────────────────── */
+    .calc-btn {
+      width: 100%;
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      padding: 13px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.18s;
+      margin-bottom: 0;
+    }
+
+    .calc-btn:hover { opacity: 0.85; }
+    .calc-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    /* ── RESULTS ──────────────────────────────────────────────── */
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+      gap: 12px;
+    }
+
+    .res-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 13px 15px;
+      text-align: center;
+    }
+
+    .res-label {
+      font-size: 0.68rem;
+      color: var(--text-faint);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 6px;
+    }
+
+    .res-value {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--accent);
+      word-break: break-all;
+      font-family: monospace;
+    }
+
+    .res-unit {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      margin-top: 3px;
+    }
+
+    /* ── CONVERTER GROUPS ─────────────────────────────────────── */
+    .conv-section-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 6px;
+      margin-bottom: 12px;
+      margin-top: 20px;
+    }
+
+    .conv-section-label:first-of-type { margin-top: 4px; }
+
+    .conv-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 11px;
+      margin-bottom: 4px;
+    }
+
+    .unit-card {
+      flex: 0 0 196px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 11px 13px;
+      transition: border-color 0.18s;
+    }
+
+    .unit-card:focus-within { border-color: var(--accent); }
+
+    .unit-tag {
+      display: inline-block;
+      font-size: 0.62rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #888;
+      background: #2a2a2a;
+      border-radius: 3px;
+      padding: 2px 6px;
+      margin-bottom: 5px;
+    }
+
+    .unit-name {
+      font-size: 0.86rem;
+      font-weight: 600;
+      color: #ddd;
+      margin-bottom: 1px;
+    }
+
+    .unit-symbol {
+      font-size: 0.73rem;
+      color: var(--text-faint);
+      margin-bottom: 7px;
+    }
+
+    .unit-input {
+      width: 100%;
+      background: #141414;
+      border: 1px solid var(--border2);
+      border-radius: 5px;
+      padding: 7px 9px;
+      color: var(--text);
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.18s, box-shadow 0.18s, background 0.18s, color 0.18s;
+    }
+
+    .unit-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-glow);
+      background: #1a1900;
+      color: var(--accent);
+    }
+
+    .unit-desc {
+      font-size: 0.66rem;
+      color: var(--text-faint);
+      margin-top: 5px;
+      line-height: 1.4;
+      font-style: italic;
+    }
+
+    /* ── RESET BUTTON ─────────────────────────────────────────── */
+    .reset-btn {
+      display: block;
+      max-width: 1100px;
+      width: calc(100% - 32px);
+      margin: 0 auto 24px;
+      background: #252525;
+      border: 1px solid var(--border2);
+      border-radius: 8px;
+      padding: 12px;
+      color: #bbb;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.18s, color 0.18s;
+    }
+
+    .reset-btn:hover { background: #333; color: #fff; }
+
+    footer {
+      text-align: center;
+      color: var(--text-faint);
+      font-size: 0.73rem;
+      margin-top: 8px;
+    }
+
+    @media (max-width: 680px) {
+      .el-card { flex-direction: column; }
+      .section { padding: 14px 14px; }
+      h1 { font-size: 1.3rem; }
+    }
+  </style>
+</head>
+<body>
+
+<h1>Conversor de Radiación + Simulador por Elemento</h1>
+<p class="subtitle">Selecciona un elemento de la tabla periódica o usa el conversor directamente.</p>
+<div class="approx-note">
+  Los calculos usan aproximaciones fisicas para radiación en tejido blando con ley inversa del cuadrado.
+  La dosis absorbida asume 1 kg de tejido de referencia. Resultados orientativos — no para uso clinico.
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════
+     PARTE 2 — TABLA PERIODICA
+     ════════════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Tabla Periódica Interactiva — 118 Elementos</div>
+  <div class="section-desc">Haz clic en un elemento para ver sus propiedades y simular su emisión radiactiva.</div>
+  <div class="pt-wrapper">
+    <div class="pt-grid" id="pt-grid">
+      <!-- Built by JavaScript -->
+    </div>
+  </div>
+  <div class="legend" id="pt-legend"></div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════
+     ELEMENTO SELECCIONADO + PARAMETROS
+     ════════════════════════════════════════════════════════════════ -->
+<div class="section" id="sim-section">
+  <div class="section-title">Elemento Seleccionado</div>
+
+  <div id="el-card-container">
+    <p class="el-placeholder">Selecciona un elemento de la tabla periódica para ver sus datos y simular su emisión.</p>
+  </div>
+
+  <div id="params-panel" style="display:none;">
+    <div class="params-grid">
+
+      <!-- Cantidad de atomos -->
+      <div class="param-box">
+        <div class="param-label">Cantidad de Átomos (N)</div>
+        <div class="atoms-display" id="atoms-display">1.000e+20</div>
+        <input type="range" class="param-slider" id="atoms-slider" min="0" max="100" value="77.8"
+               oninput="onAtomsSlider(this.value)" />
+        <div class="presets">
+          <button class="preset-btn" onclick="setAtoms(1e6)">1 Millón</button>
+          <button class="preset-btn" onclick="setAtoms(1e9)">1 Millardo</button>
+          <button class="preset-btn" onclick="setAtoms(1e12)">1 Billón</button>
+          <button class="preset-btn" onclick="setAtoms(6.022e23)">1 Mol</button>
+        </div>
+      </div>
+
+      <!-- Tiempo de exposicion -->
+      <div class="param-box">
+        <div class="param-label">Tiempo de Exposición</div>
+        <div class="param-row">
+          <input type="text" class="param-input" id="time-val" value="1" />
+          <select class="param-select" id="time-unit">
+            <option value="1">segúndos</option>
+            <option value="60">minutos</option>
+            <option value="3600" selected>horas</option>
+            <option value="86400">dias</option>
+            <option value="31557600">años</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Distancia -->
+      <div class="param-box">
+        <div class="param-label">Distancia a la Fuente</div>
+        <div class="param-row">
+          <input type="text" class="param-input" id="dist-val" value="1" />
+          <select class="param-select" id="dist-unit">
+            <option value="0.01">cm</option>
+            <option value="1" selected>m</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Tipo de tejido -->
+      <div class="param-box">
+        <div class="param-label">Tipo de Tejido (Factor wT)</div>
+        <select class="param-select" id="tissue-select" style="width:100%">
+          <option value="1.0">Cuerpo entero (promedio) — wT = 1.0</option>
+          <option value="0.08">Gonadas — wT = 0.08</option>
+          <option value="0.12">Médula ósea — wT = 0.12</option>
+          <option value="0.12">Colon — wT = 0.12</option>
+          <option value="0.12">Pulmón — wT = 0.12</option>
+          <option value="0.12">Estómago — wT = 0.12</option>
+          <option value="0.04">Vejiga — wT = 0.04</option>
+          <option value="0.12">Mama — wT = 0.12</option>
+          <option value="0.04">Hígado — wT = 0.04</option>
+          <option value="0.04">Esófago — wT = 0.04</option>
+          <option value="0.04">Tiroides — wT = 0.04</option>
+          <option value="0.01">Piel — wT = 0.01</option>
+          <option value="0.01">Superficie osea — wT = 0.01</option>
+        </select>
+      </div>
+
+    </div><!-- /params-grid -->
+    <button class="calc-btn" onclick="calculate()">Calcular Dosis</button>
+  </div><!-- /params-panel -->
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════
+     RESULTADO DEL CALCULO
+     ════════════════════════════════════════════════════════════════ -->
+<div class="section" id="results-section" style="display:none;">
+  <div class="section-title">Resultado del Calculo</div>
+  <div class="results-grid" id="results-grid"></div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════════
+     PARTE 1 — CONVERSOR DE UNIDADES
+     ════════════════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-title">Conversor de Unidades de Radiación</div>
+  <p class="section-desc">
+    Escribe un valor en cualquier campo para convertir automaticamente.
+    Los grupos Dosis Absorbida, Equivalente y Exposición están sincronizados entre si:
+    1 C/kg = 33.97 Gy y wR = 1 (gamma/X en tejido blando). Actividad es grupo independiente.
+  </p>
+
+  <!-- Actividad -->
+  <div class="conv-section-label">Actividad Radiactiva — grupo independiente</div>
+  <div class="conv-grid">
+    <div class="unit-card">
+      <span class="unit-tag">SI</span>
+      <div class="unit-name">Becquerel</div>
+      <div class="unit-symbol">Bq</div>
+      <input type="text" class="unit-input" id="act_Bq" placeholder="0"
+             oninput="onActivityInput('act_Bq',this.value)" />
+      <div class="unit-desc">1 desintegración/segúndo. Unidad oficial del SI.</div>
+    </div>
+    <div class="unit-card">
+      <span class="unit-tag">Subunidad SI</span>
+      <div class="unit-name">Kilobecquerel</div>
+      <div class="unit-symbol">kBq</div>
+      <input type="text" class="unit-input" id="act_kBq" placeholder="0"
+             oninput="onActivityInput('act_kBq',this.value)" />
+      <div class="unit-desc">1 kBq = 1,000 Bq.</div>
+    </div>
+    <div class="unit-card">
+      <span class="unit-tag">Subunidad SI</span>
+      <div class="unit-name">Megabecquerel</div>
+      <div class="unit-symbol">MBq</div>
+      <input type="text" class="unit-input" id="act_MBq" placeholder="0"
+             oninput="onActivityInput('act_MBq',this.value)" />
+      <div class="unit-desc">1 MBq = 10^6 Bq.</div>
+    </div>
+    <div class="unit-card">
+      <span class="unit-tag">Subunidad SI</span>
+      <div class="unit-name">Gigabecquerel</div>
+      <div class="unit-symbol">GBq</div>
+      <input type="text" class="unit-input" id="act_GBq" placeholder="0"
+             oninput="onActivityInput('act_GBq',this.value)" />
+      <div class="unit-desc">1 GBq = 10^9 Bq. Usado en medicina nuclear.</div>
+    </div>
+    <div class="unit-card">
+      <span class="unit-tag">Tradicional</span>
+      <div class="unit-name">Curie</div>
+      <div class="unit-symbol">Ci</div>
+      <input type="text" class="unit-input" id="act_Ci" placeholder="0"
+             oninput="onActivityInput('act_Ci',this.value)" />
+      <div class="unit-desc">1 Ci = 3.7 × 10^10 Bq. Basada en Ra-226.</div>
+    </div>
+    <div class="unit-card">
+      <span class="unit-tag">Tradicional</span>
+      <div class="unit-name">Milicurie</div>
+      <div class="unit-symbol">mCi</div>
+      <input type="text" class="unit-input" id="act_mCi" placeholder="0"
+             oninput="onActivityInput('act_mCi',this.value)" />
+      <div class="unit-desc">1 mCi = 3.7 × 10^7 Bq.</div>
+    </div>
+    <div class="unit-card">
+      <span class="unit-tag">Tradicional</span>
+      <div class="unit-name">Microcurie</div>
+      <div class="unit-symbol">uCi</div>
+      <input type="text" class="unit-input" id="act_uCi" placeholder="0"
+             oninput="onActivityInput('act_uCi',this.value)" />
+      <div class="unit-desc">1 uCi = 37,000 Bq.</div>
+    </div>
+    <div class="unit-card">
+      <span class="unit-tag">Obsoleta</span>
+      <div class="unit-name">Rutherford</div>
+      <div class="unit-symbol">Rd</div>
+      <input type="text" class="unit-input" id="act_Rd" placeholder="0"
+             oninput="onActivityInput('act_Rd',this.value)" />
+      <div class="unit-desc">1 Rd = 10^6 desintegraciones/s.</div>
+    </div>
+  </div>
+
+  <!-- Dosis Absorbida -->
+  <div class="conv-section-label">Dosis Absorbida — sincronizada con Equivalente y Exposición</div>
+  <div class="conv-grid">
+    <div class="unit-card">
+      <span class="unit-tag">SI</span>
+      <div class="unit-name">Gray</div>
+      <div class="unit-symbol">Gy</div>
+      <input type="text" class="unit-input" id="abs_Gy" placeholder="0"
+             oninput="onDoseInput('absorbed','abs_Gy',this.value)" />
+      <div class="unit-desc">1 Gy = 1 J de energia absorbida por kg de materia.</div>
+    </div>
+    <div class="unit-card">
+      <span class="unit-tag">Subunidad SI</span>
+      <div class="unit-name">Miligray</div>
+      <div class="unit-symbol">mGy</div>
+      <input type="text" class="unit-input" id="abs_mGy" placeholder="0"
+             oninput="onDoseInput('absorbed','abs_mGy',this.value)" />
+      <div class="unit-desc">1 mGy = 0.001 Gy.</div>
+    </div>
+    <div class="unit-card">
+      <span class="unit-tag">Subunidad SI</span>
+      <div class="unit-name">Microgray</div>
+      <div class="unit-symbol">uGy</div>
+      <input type="text" class="unit-input" id="abs_uGy" placeholder="0"
+             oninput="onDoseInput('absorbed','abs_uGy',this.value)" />
+      <div class="unit-desc">1 uGy = 10^-6 Gy.</div>
+    </div>
+    <div class="unit-card">
+      <span class="unit-tag">Tradicional</span>
+      <div class="unit-name">Rad</div>
+      <div class="unit-symbol">rad</div>
+      <input type="text" class="unit-input" id="abs_rad" placeholder="0"
+             oninput="onDoseInput('absorbed','abs_rad',this.value)" />
+      <div class="unit-desc">1 rad = 0.01 Gy. Ampliamente usada antes del SI.</div>
+    </div>
+    <div class="unit-card">
+      <span class="unit-tag">Tradicional</span>
+      <div class="unit-name">Milirad</div>
+      <div class="unit-symbol">mrad</div>
+      <input type="text" class="unit-input" id="abs_mrad" placeholder="0"
+             oninput="onDoseInput('absorbed','abs_mrad',this.value)" />
+      <div class="unit-desc">1 mrad = 10^-5 Gy.</div>
+    </div>
+  </div>
+
+  <!-- Dosis Equivalente -->
+  <div class="conv-section-label">Dosis Equivalente — sincronizada con Absorbida y Exposición</div>
+  <div class="conv-grid">
+    <div class="unit-card">
+      <span class="unit-tag">SI</span>
+      <div class="unit-name">Sievert</div>
+      <div class="unit-symbol">Sv</div>
+      <input type="text" class="unit-input" id="eq_Sv" placeholder="0"
+             oninput="onDoseInput('equivalent','eq_Sv',this.value)" />
+      <div class="unit-desc">1 Sv = dosis absorbida × wR. Mide daño biológico.</div>
+    </div>
+    <div class="unit-card">
+      <span class="unit-tag">Subunidad SI</span>
+      <div class="unit-name">Milisievert</div>
+      <div class="unit-symbol">mSv</div>
+      <input type="text" class="unit-input" id="eq_mSv" placeholder="0"
+             oninput="onDoseInput('equivalent','eq_mSv',this.value)" />
+      <div class="unit-desc">1 mSv = 0.001 Sv. Fondo natural anual ≈ 2–3 mSv.</div>
+    </div>
+    <div class="unit-card">
+      <span class="unit-tag">Subunidad SI</span>
+      <div class="unit-name">Microsievert</div>
+      <div class="unit-symbol">uSv</div>
+      <input type="text" class="unit-input" id="eq_uSv" placeholder="0"
+             oninput="onDoseInput('equivalent','eq_uSv',this.value)" />
+      <div class="unit-desc">1 uSv = 10^-6 Sv. Radiografía dental ≈ 5 uSv.</div>
+    </div>
+    <div class="unit-card">
+      <span class="unit-tag">Tradicional</span>
+      <div class="unit-name">Rem</div>
+      <div class="unit-symbol">rem</div>
+      <input type="text" class="unit-input" id="eq_rem" placeholder="0"
+             oninput="onDoseInput('equivalent','eq_rem',this.value)" />
+      <div class="unit-desc">1 rem = 0.01 Sv. "Roentgen Equivalent Man".</div>
+    </div>
+    <div class="unit-card">
+      <span class="unit-tag">Tradicional</span>
+      <div class="unit-name">Milirem</div>
+      <div class="unit-symbol">mrem</div>
+      <input type="text" class="unit-input" id="eq_mrem" placeholder="0"
+             oninput="onDoseInput('equivalent','eq_mrem',this.value)" />
+      <div class="unit-desc">1 mrem = 0.001 rem = 10^-5 Sv.</div>
+    </div>
+  </div>
+
+  <!-- Exposición -->
+  <div class="conv-section-label">Exposición / Ionización en Aire — sincronizada con grupos de Dosis</div>
+  <div class="conv-grid">
+    <div class="unit-card">
+      <span class="unit-tag">SI</span>
+      <div class="unit-name">Coulomb/kilogramo</div>
+      <div class="unit-symbol">C/kg</div>
+      <input type="text" class="unit-input" id="exp_Ckg" placeholder="0"
+             oninput="onDoseInput('exposure','exp_Ckg',this.value)" />
+      <div class="unit-desc">Unidad oficial del SI. 1 C/kg = 33.97 Gy (aprox.).</div>
+    </div>
+    <div class="unit-card">
+      <span class="unit-tag">Tradicional</span>
+      <div class="unit-name">Roentgen</div>
+      <div class="unit-symbol">R</div>
+      <input type="text" class="unit-input" id="exp_R" placeholder="0"
+             oninput="onDoseInput('exposure','exp_R',this.value)" />
+      <div class="unit-desc">1 R = 2.58 × 10^-4 C/kg. Unidad histórica.</div>
+    </div>
+    <div class="unit-card">
+      <span class="unit-tag">Tradicional</span>
+      <div class="unit-name">Milliroentgen</div>
+      <div class="unit-symbol">mR</div>
+      <input type="text" class="unit-input" id="exp_mR" placeholder="0"
+             oninput="onDoseInput('exposure','exp_mR',this.value)" />
+      <div class="unit-desc">1 mR = 0.001 R = 2.58 × 10^-7 C/kg.</div>
+    </div>
+    <div class="unit-card">
+      <span class="unit-tag">Tradicional</span>
+      <div class="unit-name">Microroentgen</div>
+      <div class="unit-symbol">uR</div>
+      <input type="text" class="unit-input" id="exp_uR" placeholder="0"
+             oninput="onDoseInput('exposure','exp_uR',this.value)" />
+      <div class="unit-desc">1 uR = 10^-6 R = 2.58 × 10^-10 C/kg.</div>
+    </div>
+  </div>
+
+</div><!-- /converter section -->
+
+<button class="reset-btn" onclick="resetAll()">Limpiar todo</button>
+
+<footer>
+  <p>
+    Conversiones según factores BIPM e ICRP. Cross-link: 1 C/kg = 33.97 Gy, wR = 1 (gamma/X). Solo uso educativo.
+  </p>
+</footer>
+
+<!-- ════════════════════════════════════════════════════════════════
+     JAVASCRIPT
+     ════════════════════════════════════════════════════════════════ -->
+<script>
+// ═══════════════════════════════════════════════════════════════════════
+// 1. ELEMENT DATA — all 118 elements
+// ═══════════════════════════════════════════════════════════════════════
+const ELEMENTS = [
+  {z:1,   s:'H',  n:'Hidrógeno',     c:'nonmetal',        m:1.008},
+  {z:2,   s:'He', n:'Helio',         c:'noble-gas',       m:4.003},
+  {z:3,   s:'Li', n:'Litio',         c:'alkali',          m:6.941},
+  {z:4,   s:'Be', n:'Berilio',       c:'alkaline',        m:9.012},
+  {z:5,   s:'B',  n:'Boro',          c:'metalloid',       m:10.81},
+  {z:6,   s:'C',  n:'Carbono',       c:'nonmetal',        m:12.01},
+  {z:7,   s:'N',  n:'Nitrógeno',     c:'nonmetal',        m:14.01},
+  {z:8,   s:'O',  n:'Oxígeno',       c:'nonmetal',        m:16.00},
+  {z:9,   s:'F',  n:'Fluor',         c:'halogen',         m:19.00},
+  {z:10,  s:'Ne', n:'Neon',          c:'noble-gas',       m:20.18},
+  {z:11,  s:'Na', n:'Sodio',         c:'alkali',          m:22.99},
+  {z:12,  s:'Mg', n:'Magnesio',      c:'alkaline',        m:24.31},
+  {z:13,  s:'Al', n:'Aluminio',      c:'post-transition', m:26.98},
+  {z:14,  s:'Si', n:'Silicio',       c:'metalloid',       m:28.09},
+  {z:15,  s:'P',  n:'Fósforo',       c:'nonmetal',        m:30.97},
+  {z:16,  s:'S',  n:'Azufre',        c:'nonmetal',        m:32.07},
+  {z:17,  s:'Cl', n:'Cloro',         c:'halogen',         m:35.45},
+  {z:18,  s:'Ar', n:'Argón',         c:'noble-gas',       m:39.95},
+  {z:19,  s:'K',  n:'Potasio',       c:'alkali',          m:39.10},
+  {z:20,  s:'Ca', n:'Calcio',        c:'alkaline',        m:40.08},
+  {z:21,  s:'Sc', n:'Escandio',      c:'transition',      m:44.96},
+  {z:22,  s:'Ti', n:'Titanio',       c:'transition',      m:47.87},
+  {z:23,  s:'V',  n:'Vanadio',       c:'transition',      m:50.94},
+  {z:24,  s:'Cr', n:'Cromo',         c:'transition',      m:52.00},
+  {z:25,  s:'Mn', n:'Manganeso',     c:'transition',      m:54.94},
+  {z:26,  s:'Fe', n:'Hierro',        c:'transition',      m:55.85},
+  {z:27,  s:'Co', n:'Cobalto',       c:'transition',      m:58.93},
+  {z:28,  s:'Ni', n:'Níquel',        c:'transition',      m:58.69},
+  {z:29,  s:'Cu', n:'Cobre',         c:'transition',      m:63.55},
+  {z:30,  s:'Zn', n:'Zinc',          c:'transition',      m:65.38},
+  {z:31,  s:'Ga', n:'Galio',         c:'post-transition', m:69.72},
+  {z:32,  s:'Ge', n:'Germanio',      c:'metalloid',       m:72.63},
+  {z:33,  s:'As', n:'Arsénico',      c:'metalloid',       m:74.92},
+  {z:34,  s:'Se', n:'Selenio',       c:'nonmetal',        m:78.97},
+  {z:35,  s:'Br', n:'Bromo',         c:'halogen',         m:79.90},
+  {z:36,  s:'Kr', n:'Kriptón',       c:'noble-gas',       m:83.80},
+  {z:37,  s:'Rb', n:'Rubidio',       c:'alkali',          m:85.47},
+  {z:38,  s:'Sr', n:'Estroncio',     c:'alkaline',        m:87.62},
+  {z:39,  s:'Y',  n:'Ytrio',         c:'transition',      m:88.91},
+  {z:40,  s:'Zr', n:'Circonio',      c:'transition',      m:91.22},
+  {z:41,  s:'Nb', n:'Niobio',        c:'transition',      m:92.91},
+  {z:42,  s:'Mo', n:'Molibdeno',     c:'transition',      m:95.95},
+  {z:43,  s:'Tc', n:'Tecnecio',      c:'transition',      m:98.91},
+  {z:44,  s:'Ru', n:'Rutenio',       c:'transition',      m:101.1},
+  {z:45,  s:'Rh', n:'Rodio',         c:'transition',      m:102.9},
+  {z:46,  s:'Pd', n:'Paladio',       c:'transition',      m:106.4},
+  {z:47,  s:'Ag', n:'Plata',         c:'transition',      m:107.9},
+  {z:48,  s:'Cd', n:'Cadmio',        c:'transition',      m:112.4},
+  {z:49,  s:'In', n:'Indio',         c:'post-transition', m:114.8},
+  {z:50,  s:'Sn', n:'Estaño',        c:'post-transition', m:118.7},
+  {z:51,  s:'Sb', n:'Antimonio',     c:'metalloid',       m:121.8},
+  {z:52,  s:'Te', n:'Teluro',        c:'metalloid',       m:127.6},
+  {z:53,  s:'I',  n:'Yodo',          c:'halogen',         m:126.9},
+  {z:54,  s:'Xe', n:'Xenón',         c:'noble-gas',       m:131.3},
+  {z:55,  s:'Cs', n:'Cesio',         c:'alkali',          m:132.9},
+  {z:56,  s:'Ba', n:'Bario',         c:'alkaline',        m:137.3},
+  {z:57,  s:'La', n:'Lantano',       c:'lanthanide',      m:138.9},
+  {z:58,  s:'Ce', n:'Cerio',         c:'lanthanide',      m:140.1},
+  {z:59,  s:'Pr', n:'Praseodimio',   c:'lanthanide',      m:140.9},
+  {z:60,  s:'Nd', n:'Neodimio',      c:'lanthanide',      m:144.2},
+  {z:61,  s:'Pm', n:'Prometio',      c:'lanthanide',      m:144.9},
+  {z:62,  s:'Sm', n:'Samario',       c:'lanthanide',      m:150.4},
+  {z:63,  s:'Eu', n:'Europio',       c:'lanthanide',      m:152.0},
+  {z:64,  s:'Gd', n:'Gadolinio',     c:'lanthanide',      m:157.3},
+  {z:65,  s:'Tb', n:'Terbio',        c:'lanthanide',      m:158.9},
+  {z:66,  s:'Dy', n:'Disprosio',     c:'lanthanide',      m:162.5},
+  {z:67,  s:'Ho', n:'Holmio',        c:'lanthanide',      m:164.9},
+  {z:68,  s:'Er', n:'Erbio',         c:'lanthanide',      m:167.3},
+  {z:69,  s:'Tm', n:'Tulio',         c:'lanthanide',      m:168.9},
+  {z:70,  s:'Yb', n:'Iterbio',       c:'lanthanide',      m:173.1},
+  {z:71,  s:'Lu', n:'Lutecio',       c:'lanthanide',      m:175.0},
+  {z:72,  s:'Hf', n:'Hafnio',        c:'transition',      m:178.5},
+  {z:73,  s:'Ta', n:'Tantalio',      c:'transition',      m:180.9},
+  {z:74,  s:'W',  n:'Tungsteno',     c:'transition',      m:183.8},
+  {z:75,  s:'Re', n:'Renio',         c:'transition',      m:186.2},
+  {z:76,  s:'Os', n:'Osmio',         c:'transition',      m:190.2},
+  {z:77,  s:'Ir', n:'Iridio',        c:'transition',      m:192.2},
+  {z:78,  s:'Pt', n:'Platino',       c:'transition',      m:195.1},
+  {z:79,  s:'Au', n:'Oro',           c:'transition',      m:197.0},
+  {z:80,  s:'Hg', n:'Mercurio',      c:'transition',      m:200.6},
+  {z:81,  s:'Tl', n:'Talio',         c:'post-transition', m:204.4},
+  {z:82,  s:'Pb', n:'Plomo',         c:'post-transition', m:207.2},
+  {z:83,  s:'Bi', n:'Bismuto',       c:'post-transition', m:208.9},
+  {z:84,  s:'Po', n:'Polonio',       c:'post-transition', m:209.0},
+  {z:85,  s:'At', n:'Astato',        c:'halogen',         m:210.0},
+  {z:86,  s:'Rn', n:'Radon',         c:'noble-gas',       m:222.0},
+  {z:87,  s:'Fr', n:'Francio',       c:'alkali',          m:223.0},
+  {z:88,  s:'Ra', n:'Radio',         c:'alkaline',        m:226.0},
+  {z:89,  s:'Ac', n:'Actinio',       c:'actinide',        m:227.0},
+  {z:90,  s:'Th', n:'Torio',         c:'actinide',        m:232.0},
+  {z:91,  s:'Pa', n:'Protactinio',   c:'actinide',        m:231.0},
+  {z:92,  s:'U',  n:'Uranio',        c:'actinide',        m:238.0},
+  {z:93,  s:'Np', n:'Neptunio',      c:'actinide',        m:237.0},
+  {z:94,  s:'Pu', n:'Plutonio',      c:'actinide',        m:244.0},
+  {z:95,  s:'Am', n:'Americio',      c:'actinide',        m:243.0},
+  {z:96,  s:'Cm', n:'Curio',         c:'actinide',        m:247.0},
+  {z:97,  s:'Bk', n:'Berkelio',      c:'actinide',        m:247.0},
+  {z:98,  s:'Cf', n:'Californio',    c:'actinide',        m:251.0},
+  {z:99,  s:'Es', n:'Einsteinio',     c:'actinide',        m:252.0},
+  {z:100, s:'Fm', n:'Fermio',        c:'actinide',        m:257.0},
+  {z:101, s:'Md', n:'Mendelevio',    c:'actinide',        m:258.0},
+  {z:102, s:'No', n:'Nobelio',       c:'actinide',        m:259.0},
+  {z:103, s:'Lr', n:'Laurencio',     c:'actinide',        m:262.0},
+  {z:104, s:'Rf', n:'Rutherfordio',  c:'transition',      m:267.0},
+  {z:105, s:'Db', n:'Dubnio',        c:'transition',      m:270.0},
+  {z:106, s:'Sg', n:'Seaborgio',     c:'transition',      m:271.0},
+  {z:107, s:'Bh', n:'Bohrio',        c:'transition',      m:270.0},
+  {z:108, s:'Hs', n:'Hasio',         c:'transition',      m:277.0},
+  {z:109, s:'Mt', n:'Meitnerio',     c:'transition',      m:276.0},
+  {z:110, s:'Ds', n:'Darmstadtio',   c:'transition',      m:281.0},
+  {z:111, s:'Rg', n:'Roentgenio',    c:'transition',      m:280.0},
+  {z:112, s:'Cn', n:'Copernicio',    c:'transition',      m:285.0},
+  {z:113, s:'Nh', n:'Nihonio',       c:'post-transition', m:284.0},
+  {z:114, s:'Fl', n:'Flerovio',      c:'post-transition', m:289.0},
+  {z:115, s:'Mc', n:'Moscovio',      c:'post-transition', m:288.0},
+  {z:116, s:'Lv', n:'Livermorio',    c:'post-transition', m:293.0},
+  {z:117, s:'Ts', n:'Teneso',        c:'halogen',         m:294.0},
+  {z:118, s:'Og', n:'Oganesson',     c:'noble-gas',       m:294.0},
+];
+
+// ═══════════════════════════════════════════════════════════════════════
+// 2. ISOTOPE DATA  (Z → radioisotope info)
+// ═══════════════════════════════════════════════════════════════════════
+const ISOTOPES = {
+  1:  { isotope:'H-3',    halfLife:3.888e8,  decayType:'beta',  energyMeV:0.0057, wR:1  },
+  6:  { isotope:'C-14',   halfLife:1.807e11, decayType:'beta',  energyMeV:0.0495, wR:1  },
+  11: { isotope:'Na-22',  halfLife:8.212e7,  decayType:'gamma', energyMeV:1.820,  wR:1  },
+  15: { isotope:'P-32',   halfLife:1.232e6,  decayType:'beta',  energyMeV:0.695,  wR:1  },
+  19: { isotope:'K-40',   halfLife:3.938e16, decayType:'beta',  energyMeV:0.560,  wR:1  },
+  27: { isotope:'Co-60',  halfLife:1.662e8,  decayType:'gamma', energyMeV:2.824,  wR:1  },
+  38: { isotope:'Sr-90',  halfLife:9.083e8,  decayType:'beta',  energyMeV:0.196,  wR:1  },
+  43: { isotope:'Tc-99m', halfLife:2.163e4,  decayType:'gamma', energyMeV:0.1405, wR:1  },
+  53: { isotope:'I-131',  halfLife:6.950e5,  decayType:'beta',  energyMeV:0.182,  wR:1  },
+  55: { isotope:'Cs-137', halfLife:9.491e8,  decayType:'gamma', energyMeV:0.512,  wR:1  },
+  84: { isotope:'Po-210', halfLife:1.196e7,  decayType:'alfa',  energyMeV:5.304,  wR:20 },
+  86: { isotope:'Rn-222', halfLife:3.303e5,  decayType:'alfa',  energyMeV:5.590,  wR:20 },
+  88: { isotope:'Ra-226', halfLife:5.049e10, decayType:'alfa',  energyMeV:4.871,  wR:20 },
+  90: { isotope:'Th-232', halfLife:4.427e17, decayType:'alfa',  energyMeV:4.082,  wR:20 },
+  92: { isotope:'U-238',  halfLife:1.409e17, decayType:'alfa',  energyMeV:4.270,  wR:20 },
+  94: { isotope:'Pu-239', halfLife:7.626e11, decayType:'alfa',  energyMeV:5.244,  wR:20 },
+  95: { isotope:'Am-241', halfLife:1.364e10, decayType:'alfa',  energyMeV:5.486,  wR:20 },
+};
+
+// Build lookup map
+const EL_BY_Z = {};
+ELEMENTS.forEach(e => EL_BY_Z[e.z] = e);
+
+// ═══════════════════════════════════════════════════════════════════════
+// 3. PERIODIC TABLE GRID POSITIONS  [row, col] (1-based; row 8 = gap)
+// ═══════════════════════════════════════════════════════════════════════
+const PT_POS = {};
+
+// Period 1
+PT_POS[1]=[1,1]; PT_POS[2]=[1,18];
+// Period 2
+[3,4].forEach((z,i) => PT_POS[z]=[2, i+1]);
+[5,6,7,8,9,10].forEach((z,i) => PT_POS[z]=[2, i+13]);
+// Period 3
+[11,12].forEach((z,i) => PT_POS[z]=[3, i+1]);
+[13,14,15,16,17,18].forEach((z,i) => PT_POS[z]=[3, i+13]);
+// Period 4
+for (let z=19; z<=36; z++) PT_POS[z]=[4, z-18];
+// Period 5
+for (let z=37; z<=54; z++) PT_POS[z]=[5, z-36];
+// Period 6 — main (La-Lu group skipped to f-block; row 8 = gap row)
+PT_POS[55]=[6,1]; PT_POS[56]=[6,2];
+for (let z=72; z<=86; z++) PT_POS[z]=[6, z-68];   // col 4–18
+// Period 7 — main (Ac-Lr group skipped to f-block)
+PT_POS[87]=[7,1]; PT_POS[88]=[7,2];
+for (let z=104; z<=118; z++) PT_POS[z]=[7, z-100]; // col 4–18
+// Lanthanides  (row 9, col 3–17)
+for (let z=57; z<=71; z++) PT_POS[z]=[9,  z-54];
+// Actinides    (row 10, col 3–17)
+for (let z=89; z<=103; z++) PT_POS[z]=[10, z-86];
+
+// ═══════════════════════════════════════════════════════════════════════
+// 4. BUILD PERIODIC TABLE
+// ═══════════════════════════════════════════════════════════════════════
+function buildPeriodicTable() {
+  const grid = document.getElementById('pt-grid');
+  grid.innerHTML = '';
+
+  // Gap row spacer
+  const gap = document.createElement('div');
+  gap.className = 'pt-gap';
+  grid.appendChild(gap);
+
+  // Lanthanide placeholder (row 6, col 3)
+  const lp = document.createElement('div');
+  lp.className = 'pt-placeholder';
+  lp.style.cssText = 'grid-row:6; grid-column:3; background:#2a1400; border:1px dashed #d35400; color:#d35400; font-size:0.48rem; line-height:1.3;';
+  lp.innerHTML = '57–71<br>↓';
+  grid.appendChild(lp);
+
+  // Actinide placeholder (row 7, col 3)
+  const ap = document.createElement('div');
+  ap.className = 'pt-placeholder';
+  ap.style.cssText = 'grid-row:7; grid-column:3; background:#200000; border:1px dashed #922b21; color:#922b21; font-size:0.48rem; line-height:1.3;';
+  ap.innerHTML = '89–103<br>↓';
+  grid.appendChild(ap);
+
+  // F-block label (row 9, col 1–2)
+  const lnLabel = document.createElement('div');
+  lnLabel.style.cssText = 'grid-row:9; grid-column:1/3; display:flex; align-items:center; justify-content:center; font-size:0.55rem; font-weight:600; color:#d35400;';
+  lnLabel.textContent = 'Lantánidos';
+  grid.appendChild(lnLabel);
+
+  const acLabel = document.createElement('div');
+  acLabel.style.cssText = 'grid-row:10; grid-column:1/3; display:flex; align-items:center; justify-content:center; font-size:0.55rem; font-weight:600; color:#922b21;';
+  acLabel.textContent = 'Actínidos';
+  grid.appendChild(acLabel);
+
+  // All 118 element cells
+  ELEMENTS.forEach(el => {
+    const pos = PT_POS[el.z];
+    if (!pos) return;
+    const [row, col] = pos;
+
+    const cell = document.createElement('div');
+    cell.className = 'el-cell cat-' + el.c;
+    cell.id = 'el-cell-' + el.z;
+    cell.style.gridRow  = row;
+    cell.style.gridColumn = col;
+    cell.title = el.n + ' (Z=' + el.z + ', ' + el.m + ' u)';
+
+    cell.innerHTML =
+      '<div class="el-z">'   + el.z  + '</div>' +
+      '<div class="el-sym">' + el.s  + '</div>' +
+      '<div class="el-name">'+ el.n  + '</div>';
+
+    cell.addEventListener('click', () => selectElement(el.z));
+    grid.appendChild(cell);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// 5. BUILD LEGEND
+// ═══════════════════════════════════════════════════════════════════════
+const CAT_LABELS = {
+  'alkali':          ['Metales alcalinos',       '#c0392b'],
+  'alkaline':        ['Metales alcalinotérreos', '#e67e22'],
+  'transition':      ['Metales de transicion',   '#2980b9'],
+  'post-transition': ['Metales del bloque p',    '#7f8c8d'],
+  'metalloid':       ['Metaloides',              '#27ae60'],
+  'nonmetal':        ['No metales',              '#16a085'],
+  'halogen':         ['Halógenos',               '#8e44ad'],
+  'noble-gas':       ['Gases nobles',            '#2c3e50'],
+  'lanthanide':      ['Lantánidos',              '#d35400'],
+  'actinide':        ['Actínidos',               '#922b21'],
+};
+
+function buildLegend() {
+  const leg = document.getElementById('pt-legend');
+  leg.innerHTML = Object.entries(CAT_LABELS).map(([, [label, color]]) =>
+    '<div class="legend-item">' +
+    '<div class="legend-dot" style="background:' + color + ';"></div>' +
+    '<span>' + label + '</span></div>'
+  ).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// 6. ELEMENT SELECTION & CARD
+// ═══════════════════════════════════════════════════════════════════════
+let selectedZ = null;
+const LOG_MIN = 6;  // 10^6
+const LOG_MAX = 24; // 10^24
+let currentAtoms = 1e20;
+
+const CAT_NAMES = {
+  'alkali':          'Metal alcalino',
+  'alkaline':        'Metal alcalinotérreo',
+  'transition':      'Metal de transicion',
+  'post-transition': 'Metal del bloque p',
+  'metalloid':       'Metaloide',
+  'nonmetal':        'No metal',
+  'halogen':         'Halógeno',
+  'noble-gas':       'Gas noble',
+  'lanthanide':      'Lantánido',
+  'actinide':        'Actínido',
+};
+
+function selectElement(z) {
+  // Deselect previous
+  if (selectedZ !== null) {
+    const prev = document.getElementById('el-cell-' + selectedZ);
+    if (prev) prev.classList.remove('selected');
+  }
+  selectedZ = z;
+  const cell = document.getElementById('el-cell-' + z);
+  if (cell) cell.classList.add('selected');
+
+  renderElementCard(z);
+  document.getElementById('params-panel').style.display = 'block';
+  document.getElementById('sim-section').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function renderElementCard(z) {
+  const el  = EL_BY_Z[z];
+  const iso = ISOTOPES[z];
+
+  let isoHtml;
+  if (iso) {
+    const hl = formatHalfLife(iso.halfLife);
+    const eJ = (iso.energyMeV * 1.60218e-13).toExponential(3);
+    const sym = iso.decayType === 'alfa' ? 'α' : iso.decayType === 'beta' ? 'β' : 'γ';
+    isoHtml =
+      '<div>Isótopo: <b>' + iso.isotope + '</b></div>' +
+      '<div>Vida media: <b>' + hl + '</b></div>' +
+      '<div>Emision: <b>' + sym + ' (' + iso.decayType + ')</b></div>' +
+      '<div>Energía/desint.: <b>' + iso.energyMeV + ' MeV = ' + eJ + ' J</b></div>' +
+      '<div>Factor wR: <b>' + iso.wR + '</b></div>';
+  } else {
+    isoHtml = '<div style="color:#666;font-style:italic;line-height:1.6;">Elemento estable o sin datos de emisión disponibles.</div>';
+  }
+
+  document.getElementById('el-card-container').innerHTML =
+    '<div class="el-card">' +
+      '<div class="el-symbol-big">' + el.s + '</div>' +
+      '<div class="el-info">' +
+        '<div class="el-info-name">' + el.n + '</div>' +
+        '<div class="el-info-row">Número atómico: <b>Z = ' + el.z + '</b></div>' +
+        '<div class="el-info-row">Masa atómica: <b>' + el.m + ' u</b></div>' +
+        '<div class="el-info-row">Categoría: <b>' + (CAT_NAMES[el.c] || el.c) + '</b></div>' +
+      '</div>' +
+      '<div class="el-isotope-box">' + isoHtml + '</div>' +
+    '</div>';
+}
+
+function formatHalfLife(s) {
+  if (s < 1)           return (s * 1000).toFixed(1) + ' ms';
+  if (s < 60)          return s.toFixed(2) + ' s';
+  if (s < 3600)        return (s / 60).toFixed(2) + ' min';
+  if (s < 86400)       return (s / 3600).toFixed(2) + ' h';
+  if (s < 31557600)    return (s / 86400).toFixed(2) + ' dias';
+  if (s < 3.1558e10)   return (s / 31557600).toFixed(2) + ' años';
+  return (s / 31557600).toExponential(3) + ' anos';
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// 7. ATOMS SLIDER (logarithmic scale 10^6 – 10^24)
+// ═══════════════════════════════════════════════════════════════════════
+function sliderToAtoms(v) {
+  return Math.pow(10, LOG_MIN + (v / 100) * (LOG_MAX - LOG_MIN));
+}
+
+function atomsToSlider(n) {
+  return Math.round((Math.log10(n) - LOG_MIN) / (LOG_MAX - LOG_MIN) * 100);
+}
+
+function onAtomsSlider(v) {
+  currentAtoms = sliderToAtoms(parseFloat(v));
+  document.getElementById('atoms-display').textContent = fmtSci(currentAtoms);
+}
+
+function setAtoms(n) {
+  currentAtoms = n;
+  const slider = document.getElementById('atoms-slider');
+  slider.value = atomsToSlider(n);
+  document.getElementById('atoms-display').textContent = fmtSci(n);
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// 8. CALCULATE
+// ═══════════════════════════════════════════════════════════════════════
+function calculate() {
+  if (selectedZ === null) { alert('Selecciona un elemento primero.'); return; }
+  const iso = ISOTOPES[selectedZ];
+  if (!iso) { alert('Este elemento no tiene datos de isotopo radiactivo disponibles.'); return; }
+
+  const timeVal   = parseFloat(document.getElementById('time-val').value)   || 1;
+  const timeUnit  = parseFloat(document.getElementById('time-unit').value);
+  const timeSeconds = timeVal * timeUnit;
+
+  const distVal   = parseFloat(document.getElementById('dist-val').value)   || 1;
+  const distUnit  = parseFloat(document.getElementById('dist-unit').value);
+  const distMeters = Math.max(distVal * distUnit, 0.001); // avoid 0-division
+
+  const wT = parseFloat(document.getElementById('tissue-select').value);
+  const N  = currentAtoms;
+
+  // Physics
+  const lambda       = Math.LN2 / iso.halfLife;
+  const activity_Bq  = N * lambda;
+  const decays_in_t  = N * (1 - Math.exp(-lambda * timeSeconds));
+  const ePerDecay_J  = iso.energyMeV * 1.60218e-13;
+  const energy_J     = decays_in_t * ePerDecay_J;
+
+  // Dose at distance (inverse square law, reference 1 kg tissue)
+  const geomFactor   = 1.0 / (distMeters * distMeters);
+  const dosis_Gy     = (energy_J / 1.0) * geomFactor;
+  const dosis_Sv     = dosis_Gy  * iso.wR;
+  const dosis_eff_Sv = dosis_Sv  * wT;
+
+  // Show results panel
+  const distLabel = distUnit === 0.01
+    ? distVal.toFixed(2) + ' cm'
+    : distVal.toFixed(2) + ' m';
+
+  const rg = document.getElementById('results-grid');
+  rg.innerHTML =
+    resCard('Actividad instantánea',   fmtSci(activity_Bq),  'Bq (desintegraciones/s)') +
+    resCard('Desintegraciones totales', fmtSci(decays_in_t), 'en ' + fmtTime(timeSeconds)) +
+    resCard('Energía total depositada', fmtSci(energy_J),    'Joules') +
+    resCard('Dosis absorbida',          fmtSci(dosis_Gy),    'Gy (a ' + distLabel + ', 1 kg tejido)') +
+    resCard('Dosis equivalente',        fmtSci(dosis_Sv),    'Sv  (wR = ' + iso.wR + ', ' + iso.decayType + ')') +
+    resCard('Dosis efectiva',           fmtSci(dosis_eff_Sv),'Sv  (wT = ' + wT + ')');
+
+  document.getElementById('results-section').style.display = 'block';
+  document.getElementById('results-section').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  // Feed converters automatically
+  fillActivityFromBq(activity_Bq);
+  fillDoseFromGy(dosis_Gy);
+}
+
+function resCard(label, value, unit) {
+  return '<div class="res-card">' +
+    '<div class="res-label">' + label + '</div>' +
+    '<div class="res-value">' + value + '</div>' +
+    '<div class="res-unit">'  + unit  + '</div>' +
+    '</div>';
+}
+
+function fmtTime(s) {
+  if (s < 60)       return s.toFixed(0) + ' s';
+  if (s < 3600)     return (s/60).toFixed(1) + ' min';
+  if (s < 86400)    return (s/3600).toFixed(1) + ' h';
+  if (s < 31557600) return (s/86400).toFixed(1) + ' días';
+  return (s/31557600).toFixed(2) + ' años';
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// 9. CONVERTER  (cross-linked groups)
+// ═══════════════════════════════════════════════════════════════════════
+const GY_PER_CKG = 33.97;
+const SV_PER_GY  = 1;     // wR=1 for gamma/X
+
+const ACTIVITY_F = {
+  act_Bq:  1,
+  act_kBq: 1e3,
+  act_MBq: 1e6,
+  act_GBq: 1e9,
+  act_Ci:  3.7e10,
+  act_mCi: 3.7e7,
+  act_uCi: 3.7e4,
+  act_Rd:  1e6,
+};
+
+const ABSORBED_F = {
+  abs_Gy:   1,
+  abs_mGy:  1e-3,
+  abs_uGy:  1e-6,
+  abs_rad:  0.01,
+  abs_mrad: 1e-5,
+};
+
+const EQUIV_F = {
+  eq_Sv:   1,
+  eq_mSv:  1e-3,
+  eq_uSv:  1e-6,
+  eq_rem:  0.01,
+  eq_mrem: 1e-5,
+};
+
+const EXPOSURE_F = {
+  exp_Ckg: 1,
+  exp_R:   2.58e-4,
+  exp_mR:  2.58e-7,
+  exp_uR:  2.58e-10,
+};
+
+function parseNum(str) {
+  return parseFloat(String(str).replace(/,/g, '').trim());
+}
+
+function fmtOut(n) {
+  if (!isFinite(n) || isNaN(n)) return '';
+  if (n === 0) return '0';
+  const a = Math.abs(n);
+  if (a < 1e-9 || a >= 1e15) return n.toExponential(4);
+  const s = parseFloat(n.toPrecision(8)).toString();
+  const p = s.split('.');
+  p[0] = p[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return p.join('.');
+}
+
+function fmtSci(n) {
+  if (!isFinite(n) || isNaN(n)) return '—';
+  if (n === 0) return '0';
+  const a = Math.abs(n);
+  if (a >= 1e-3 && a < 1e7) return parseFloat(n.toPrecision(5)).toLocaleString('en-US');
+  return n.toExponential(3);
+}
+
+function setGroup(factors, skipId, baseValue) {
+  for (const [id, f] of Object.entries(factors)) {
+    if (id === skipId) continue;
+    const el = document.getElementById(id);
+    if (el) el.value = fmtOut(baseValue / f);
+  }
+}
+
+function clearGroup(factors, skipId) {
+  for (const id of Object.keys(factors)) {
+    if (id === skipId) continue;
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  }
+}
+
+// Called from Activity inputs
+function onActivityInput(srcId, raw) {
+  const n = parseNum(raw);
+  if (raw === '' || isNaN(n)) { clearGroup(ACTIVITY_F, srcId); return; }
+  setGroup(ACTIVITY_F, srcId, n * ACTIVITY_F[srcId]);
+}
+
+// Called from Absorbed / Equivalent / Exposure inputs
+function onDoseInput(group, srcId, raw) {
+  const n = parseNum(raw);
+  if (raw === '' || isNaN(n)) {
+    clearGroup(ABSORBED_F,  srcId);
+    clearGroup(EQUIV_F,     srcId);
+    clearGroup(EXPOSURE_F,  srcId);
+    return;
+  }
+
+  let gy;
+  if (group === 'absorbed')   gy = n * ABSORBED_F[srcId];
+  if (group === 'equivalent') gy = n * EQUIV_F[srcId] / SV_PER_GY;
+  if (group === 'exposure')   gy = n * EXPOSURE_F[srcId] * GY_PER_CKG;
+
+  setGroup(ABSORBED_F,  srcId, gy);
+  setGroup(EQUIV_F,     srcId, gy * SV_PER_GY);
+  setGroup(EXPOSURE_F,  srcId, gy / GY_PER_CKG);
+}
+
+// Feed all activity fields from a Bq value (called by calculator)
+function fillActivityFromBq(bq) {
+  for (const [id, f] of Object.entries(ACTIVITY_F)) {
+    const el = document.getElementById(id);
+    if (el) el.value = fmtOut(bq / f);
+  }
+}
+
+// Feed all dose fields from a Gy value (called by calculator)
+function fillDoseFromGy(gy) {
+  for (const [id, f] of Object.entries(ABSORBED_F)) {
+    const el = document.getElementById(id);
+    if (el) el.value = fmtOut(gy / f);
+  }
+  for (const [id, f] of Object.entries(EQUIV_F)) {
+    const el = document.getElementById(id);
+    if (el) el.value = fmtOut(gy * SV_PER_GY / f);
+  }
+  for (const [id, f] of Object.entries(EXPOSURE_F)) {
+    const el = document.getElementById(id);
+    if (el) el.value = fmtOut((gy / GY_PER_CKG) / f);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// 10. RESET
+// ═══════════════════════════════════════════════════════════════════════
+function resetAll() {
+  document.querySelectorAll('.unit-input').forEach(el => el.value = '');
+  document.getElementById('results-section').style.display = 'none';
+  document.getElementById('el-card-container').innerHTML =
+    '<p class="el-placeholder">Selecciona un elemento de la tabla periódica para ver sus datos y simular su emisión.</p>';
+  document.getElementById('params-panel').style.display = 'none';
+  if (selectedZ !== null) {
+    const c = document.getElementById('el-cell-' + selectedZ);
+    if (c) c.classList.remove('selected');
+    selectedZ = null;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════════
+buildPeriodicTable();
+buildLegend();
+// Initialise atoms display with default value
+document.getElementById('atoms-display').textContent = fmtSci(currentAtoms);
+document.getElementById('atoms-slider').value = atomsToSlider(currentAtoms);
+</script>
+
+</body>
+</html>
