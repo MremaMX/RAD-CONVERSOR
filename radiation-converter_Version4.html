@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Conversor de Radiacion + Simulador por Elemento</title>
+  <title>Conversor de Radiación + Simulador por Elemento</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -534,10 +534,10 @@
 </head>
 <body>
 
-<h1>Conversor de Radiacion + Simulador por Elemento</h1>
-<p class="subtitle">Selecciona un elemento de la tabla periodica o usa el conversor directamente.</p>
+<h1>Conversor de Radiación + Simulador por Elemento</h1>
+<p class="subtitle">Selecciona un elemento de la tabla periódica o usa el conversor directamente.</p>
 <div class="approx-note">
-  Los calculos usan aproximaciones fisicas para radiacion en tejido blando con ley inversa del cuadrado.
+  Los calculos usan aproximaciones fisicas para radiación en tejido blando con ley inversa del cuadrado.
   La dosis absorbida asume 1 kg de tejido de referencia. Resultados orientativos — no para uso clinico.
 </div>
 
@@ -545,8 +545,8 @@
      PARTE 2 — TABLA PERIODICA
      ════════════════════════════════════════════════════════════════ -->
 <div class="section">
-  <div class="section-title">Tabla Periodica Interactiva — 118 Elementos</div>
-  <div class="section-desc">Haz clic en un elemento para ver sus propiedades y simular su emision radiactiva.</div>
+  <div class="section-title">Tabla Periódica Interactiva — 118 Elementos</div>
+  <div class="section-desc">Haz clic en un elemento para ver sus propiedades y simular su emisión radiactiva.</div>
   <div class="pt-wrapper">
     <div class="pt-grid" id="pt-grid">
       <!-- Built by JavaScript -->
@@ -562,7 +562,7 @@
   <div class="section-title">Elemento Seleccionado</div>
 
   <div id="el-card-container">
-    <p class="el-placeholder">Selecciona un elemento de la tabla periodica para ver sus datos y simular su emision.</p>
+    <p class="el-placeholder">Selecciona un elemento de la tabla periódica para ver sus datos y simular su emisión.</p>
   </div>
 
   <div id="params-panel" style="display:none;">
@@ -570,29 +570,29 @@
 
       <!-- Cantidad de atomos -->
       <div class="param-box">
-        <div class="param-label">Cantidad de Atomos (N)</div>
+        <div class="param-label">Cantidad de Átomos (N)</div>
         <div class="atoms-display" id="atoms-display">1.000e+20</div>
         <input type="range" class="param-slider" id="atoms-slider" min="0" max="100" value="77.8"
                oninput="onAtomsSlider(this.value)" />
         <div class="presets">
-          <button class="preset-btn" onclick="setAtoms(1e6)">1 Millon</button>
+          <button class="preset-btn" onclick="setAtoms(1e6)">1 Millón</button>
           <button class="preset-btn" onclick="setAtoms(1e9)">1 Millardo</button>
-          <button class="preset-btn" onclick="setAtoms(1e12)">1 Billon</button>
+          <button class="preset-btn" onclick="setAtoms(1e12)">1 Billón</button>
           <button class="preset-btn" onclick="setAtoms(6.022e23)">1 Mol</button>
         </div>
       </div>
 
       <!-- Tiempo de exposicion -->
       <div class="param-box">
-        <div class="param-label">Tiempo de Exposicion</div>
+        <div class="param-label">Tiempo de Exposición</div>
         <div class="param-row">
           <input type="text" class="param-input" id="time-val" value="1" />
           <select class="param-select" id="time-unit">
-            <option value="1">segundos</option>
+            <option value="1">segúndos</option>
             <option value="60">minutos</option>
             <option value="3600" selected>horas</option>
             <option value="86400">dias</option>
-            <option value="31557600">anos</option>
+            <option value="31557600">años</option>
           </select>
         </div>
       </div>
@@ -615,14 +615,14 @@
         <select class="param-select" id="tissue-select" style="width:100%">
           <option value="1.0">Cuerpo entero (promedio) — wT = 1.0</option>
           <option value="0.08">Gonadas — wT = 0.08</option>
-          <option value="0.12">Medula osea — wT = 0.12</option>
+          <option value="0.12">Médula ósea — wT = 0.12</option>
           <option value="0.12">Colon — wT = 0.12</option>
-          <option value="0.12">Pulmon — wT = 0.12</option>
-          <option value="0.12">Estomago — wT = 0.12</option>
+          <option value="0.12">Pulmón — wT = 0.12</option>
+          <option value="0.12">Estómago — wT = 0.12</option>
           <option value="0.04">Vejiga — wT = 0.04</option>
           <option value="0.12">Mama — wT = 0.12</option>
-          <option value="0.04">Higado — wT = 0.04</option>
-          <option value="0.04">Esofago — wT = 0.04</option>
+          <option value="0.04">Hígado — wT = 0.04</option>
+          <option value="0.04">Esófago — wT = 0.04</option>
           <option value="0.04">Tiroides — wT = 0.04</option>
           <option value="0.01">Piel — wT = 0.01</option>
           <option value="0.01">Superficie osea — wT = 0.01</option>
@@ -646,10 +646,10 @@
      PARTE 1 — CONVERSOR DE UNIDADES
      ════════════════════════════════════════════════════════════════ -->
 <div class="section">
-  <div class="section-title">Conversor de Unidades de Radiacion</div>
+  <div class="section-title">Conversor de Unidades de Radiación</div>
   <p class="section-desc">
     Escribe un valor en cualquier campo para convertir automaticamente.
-    Los grupos Dosis Absorbida, Equivalente y Exposicion estan sincronizados entre si:
+    Los grupos Dosis Absorbida, Equivalente y Exposición están sincronizados entre si:
     1 C/kg = 33.97 Gy y wR = 1 (gamma/X en tejido blando). Actividad es grupo independiente.
   </p>
 
@@ -662,7 +662,7 @@
       <div class="unit-symbol">Bq</div>
       <input type="text" class="unit-input" id="act_Bq" placeholder="0"
              oninput="onActivityInput('act_Bq',this.value)" />
-      <div class="unit-desc">1 desintegracion/segundo. Unidad oficial del SI.</div>
+      <div class="unit-desc">1 desintegración/segúndo. Unidad oficial del SI.</div>
     </div>
     <div class="unit-card">
       <span class="unit-tag">Subunidad SI</span>
@@ -723,7 +723,7 @@
   </div>
 
   <!-- Dosis Absorbida -->
-  <div class="conv-section-label">Dosis Absorbida — sincronizada con Equivalente y Exposicion</div>
+  <div class="conv-section-label">Dosis Absorbida — sincronizada con Equivalente y Exposición</div>
   <div class="conv-grid">
     <div class="unit-card">
       <span class="unit-tag">SI</span>
@@ -768,7 +768,7 @@
   </div>
 
   <!-- Dosis Equivalente -->
-  <div class="conv-section-label">Dosis Equivalente — sincronizada con Absorbida y Exposicion</div>
+  <div class="conv-section-label">Dosis Equivalente — sincronizada con Absorbida y Exposición</div>
   <div class="conv-grid">
     <div class="unit-card">
       <span class="unit-tag">SI</span>
@@ -776,7 +776,7 @@
       <div class="unit-symbol">Sv</div>
       <input type="text" class="unit-input" id="eq_Sv" placeholder="0"
              oninput="onDoseInput('equivalent','eq_Sv',this.value)" />
-      <div class="unit-desc">1 Sv = dosis absorbida × wR. Mide dano biologico.</div>
+      <div class="unit-desc">1 Sv = dosis absorbida × wR. Mide daño biológico.</div>
     </div>
     <div class="unit-card">
       <span class="unit-tag">Subunidad SI</span>
@@ -792,7 +792,7 @@
       <div class="unit-symbol">uSv</div>
       <input type="text" class="unit-input" id="eq_uSv" placeholder="0"
              oninput="onDoseInput('equivalent','eq_uSv',this.value)" />
-      <div class="unit-desc">1 uSv = 10^-6 Sv. Radiografia dental ≈ 5 uSv.</div>
+      <div class="unit-desc">1 uSv = 10^-6 Sv. Radiografía dental ≈ 5 uSv.</div>
     </div>
     <div class="unit-card">
       <span class="unit-tag">Tradicional</span>
@@ -812,8 +812,8 @@
     </div>
   </div>
 
-  <!-- Exposicion -->
-  <div class="conv-section-label">Exposicion / Ionizacion en Aire — sincronizada con grupos de Dosis</div>
+  <!-- Exposición -->
+  <div class="conv-section-label">Exposición / Ionización en Aire — sincronizada con grupos de Dosis</div>
   <div class="conv-grid">
     <div class="unit-card">
       <span class="unit-tag">SI</span>
@@ -829,7 +829,7 @@
       <div class="unit-symbol">R</div>
       <input type="text" class="unit-input" id="exp_R" placeholder="0"
              oninput="onDoseInput('exposure','exp_R',this.value)" />
-      <div class="unit-desc">1 R = 2.58 × 10^-4 C/kg. Unidad historica.</div>
+      <div class="unit-desc">1 R = 2.58 × 10^-4 C/kg. Unidad histórica.</div>
     </div>
     <div class="unit-card">
       <span class="unit-tag">Tradicional</span>
@@ -855,7 +855,7 @@
 
 <footer>
   <p>
-    Conversiones segun factores BIPM e ICRP. Cross-link: 1 C/kg = 33.97 Gy, wR = 1 (gamma/X). Solo uso educativo.
+    Conversiones según factores BIPM e ICRP. Cross-link: 1 C/kg = 33.97 Gy, wR = 1 (gamma/X). Solo uso educativo.
   </p>
 </footer>
 
@@ -867,24 +867,24 @@
 // 1. ELEMENT DATA — all 118 elements
 // ═══════════════════════════════════════════════════════════════════════
 const ELEMENTS = [
-  {z:1,   s:'H',  n:'Hidrogeno',     c:'nonmetal',        m:1.008},
+  {z:1,   s:'H',  n:'Hidrógeno',     c:'nonmetal',        m:1.008},
   {z:2,   s:'He', n:'Helio',         c:'noble-gas',       m:4.003},
   {z:3,   s:'Li', n:'Litio',         c:'alkali',          m:6.941},
   {z:4,   s:'Be', n:'Berilio',       c:'alkaline',        m:9.012},
   {z:5,   s:'B',  n:'Boro',          c:'metalloid',       m:10.81},
   {z:6,   s:'C',  n:'Carbono',       c:'nonmetal',        m:12.01},
-  {z:7,   s:'N',  n:'Nitrogeno',     c:'nonmetal',        m:14.01},
-  {z:8,   s:'O',  n:'Oxigeno',       c:'nonmetal',        m:16.00},
+  {z:7,   s:'N',  n:'Nitrógeno',     c:'nonmetal',        m:14.01},
+  {z:8,   s:'O',  n:'Oxígeno',       c:'nonmetal',        m:16.00},
   {z:9,   s:'F',  n:'Fluor',         c:'halogen',         m:19.00},
   {z:10,  s:'Ne', n:'Neon',          c:'noble-gas',       m:20.18},
   {z:11,  s:'Na', n:'Sodio',         c:'alkali',          m:22.99},
   {z:12,  s:'Mg', n:'Magnesio',      c:'alkaline',        m:24.31},
   {z:13,  s:'Al', n:'Aluminio',      c:'post-transition', m:26.98},
   {z:14,  s:'Si', n:'Silicio',       c:'metalloid',       m:28.09},
-  {z:15,  s:'P',  n:'Fosforo',       c:'nonmetal',        m:30.97},
+  {z:15,  s:'P',  n:'Fósforo',       c:'nonmetal',        m:30.97},
   {z:16,  s:'S',  n:'Azufre',        c:'nonmetal',        m:32.07},
   {z:17,  s:'Cl', n:'Cloro',         c:'halogen',         m:35.45},
-  {z:18,  s:'Ar', n:'Argon',         c:'noble-gas',       m:39.95},
+  {z:18,  s:'Ar', n:'Argón',         c:'noble-gas',       m:39.95},
   {z:19,  s:'K',  n:'Potasio',       c:'alkali',          m:39.10},
   {z:20,  s:'Ca', n:'Calcio',        c:'alkaline',        m:40.08},
   {z:21,  s:'Sc', n:'Escandio',      c:'transition',      m:44.96},
@@ -894,15 +894,15 @@ const ELEMENTS = [
   {z:25,  s:'Mn', n:'Manganeso',     c:'transition',      m:54.94},
   {z:26,  s:'Fe', n:'Hierro',        c:'transition',      m:55.85},
   {z:27,  s:'Co', n:'Cobalto',       c:'transition',      m:58.93},
-  {z:28,  s:'Ni', n:'Niquel',        c:'transition',      m:58.69},
+  {z:28,  s:'Ni', n:'Níquel',        c:'transition',      m:58.69},
   {z:29,  s:'Cu', n:'Cobre',         c:'transition',      m:63.55},
   {z:30,  s:'Zn', n:'Zinc',          c:'transition',      m:65.38},
   {z:31,  s:'Ga', n:'Galio',         c:'post-transition', m:69.72},
   {z:32,  s:'Ge', n:'Germanio',      c:'metalloid',       m:72.63},
-  {z:33,  s:'As', n:'Arsenico',      c:'metalloid',       m:74.92},
+  {z:33,  s:'As', n:'Arsénico',      c:'metalloid',       m:74.92},
   {z:34,  s:'Se', n:'Selenio',       c:'nonmetal',        m:78.97},
   {z:35,  s:'Br', n:'Bromo',         c:'halogen',         m:79.90},
-  {z:36,  s:'Kr', n:'Kripton',       c:'noble-gas',       m:83.80},
+  {z:36,  s:'Kr', n:'Kriptón',       c:'noble-gas',       m:83.80},
   {z:37,  s:'Rb', n:'Rubidio',       c:'alkali',          m:85.47},
   {z:38,  s:'Sr', n:'Estroncio',     c:'alkaline',        m:87.62},
   {z:39,  s:'Y',  n:'Ytrio',         c:'transition',      m:88.91},
@@ -916,11 +916,11 @@ const ELEMENTS = [
   {z:47,  s:'Ag', n:'Plata',         c:'transition',      m:107.9},
   {z:48,  s:'Cd', n:'Cadmio',        c:'transition',      m:112.4},
   {z:49,  s:'In', n:'Indio',         c:'post-transition', m:114.8},
-  {z:50,  s:'Sn', n:'Estano',        c:'post-transition', m:118.7},
+  {z:50,  s:'Sn', n:'Estaño',        c:'post-transition', m:118.7},
   {z:51,  s:'Sb', n:'Antimonio',     c:'metalloid',       m:121.8},
   {z:52,  s:'Te', n:'Teluro',        c:'metalloid',       m:127.6},
   {z:53,  s:'I',  n:'Yodo',          c:'halogen',         m:126.9},
-  {z:54,  s:'Xe', n:'Xenon',         c:'noble-gas',       m:131.3},
+  {z:54,  s:'Xe', n:'Xenón',         c:'noble-gas',       m:131.3},
   {z:55,  s:'Cs', n:'Cesio',         c:'alkali',          m:132.9},
   {z:56,  s:'Ba', n:'Bario',         c:'alkaline',        m:137.3},
   {z:57,  s:'La', n:'Lantano',       c:'lanthanide',      m:138.9},
@@ -965,7 +965,7 @@ const ELEMENTS = [
   {z:96,  s:'Cm', n:'Curio',         c:'actinide',        m:247.0},
   {z:97,  s:'Bk', n:'Berkelio',      c:'actinide',        m:247.0},
   {z:98,  s:'Cf', n:'Californio',    c:'actinide',        m:251.0},
-  {z:99,  s:'Es', n:'Einstenio',     c:'actinide',        m:252.0},
+  {z:99,  s:'Es', n:'Einsteinio',     c:'actinide',        m:252.0},
   {z:100, s:'Fm', n:'Fermio',        c:'actinide',        m:257.0},
   {z:101, s:'Md', n:'Mendelevio',    c:'actinide',        m:258.0},
   {z:102, s:'No', n:'Nobelio',       c:'actinide',        m:259.0},
@@ -1071,12 +1071,12 @@ function buildPeriodicTable() {
   // F-block label (row 9, col 1–2)
   const lnLabel = document.createElement('div');
   lnLabel.style.cssText = 'grid-row:9; grid-column:1/3; display:flex; align-items:center; justify-content:center; font-size:0.55rem; font-weight:600; color:#d35400;';
-  lnLabel.textContent = 'Lantanidos';
+  lnLabel.textContent = 'Lantánidos';
   grid.appendChild(lnLabel);
 
   const acLabel = document.createElement('div');
   acLabel.style.cssText = 'grid-row:10; grid-column:1/3; display:flex; align-items:center; justify-content:center; font-size:0.55rem; font-weight:600; color:#922b21;';
-  acLabel.textContent = 'Actinidos';
+  acLabel.textContent = 'Actínidos';
   grid.appendChild(acLabel);
 
   // All 118 element cells
@@ -1107,15 +1107,15 @@ function buildPeriodicTable() {
 // ═══════════════════════════════════════════════════════════════════════
 const CAT_LABELS = {
   'alkali':          ['Metales alcalinos',       '#c0392b'],
-  'alkaline':        ['Metales alcalinoterreos', '#e67e22'],
+  'alkaline':        ['Metales alcalinotérreos', '#e67e22'],
   'transition':      ['Metales de transicion',   '#2980b9'],
   'post-transition': ['Metales del bloque p',    '#7f8c8d'],
   'metalloid':       ['Metaloides',              '#27ae60'],
   'nonmetal':        ['No metales',              '#16a085'],
-  'halogen':         ['Halogenos',               '#8e44ad'],
+  'halogen':         ['Halógenos',               '#8e44ad'],
   'noble-gas':       ['Gases nobles',            '#2c3e50'],
-  'lanthanide':      ['Lantanidos',              '#d35400'],
-  'actinide':        ['Actinidos',               '#922b21'],
+  'lanthanide':      ['Lantánidos',              '#d35400'],
+  'actinide':        ['Actínidos',               '#922b21'],
 };
 
 function buildLegend() {
@@ -1137,15 +1137,15 @@ let currentAtoms = 1e20;
 
 const CAT_NAMES = {
   'alkali':          'Metal alcalino',
-  'alkaline':        'Metal alcalinoterreo',
+  'alkaline':        'Metal alcalinotérreo',
   'transition':      'Metal de transicion',
   'post-transition': 'Metal del bloque p',
   'metalloid':       'Metaloide',
   'nonmetal':        'No metal',
-  'halogen':         'Halogeno',
+  'halogen':         'Halógeno',
   'noble-gas':       'Gas noble',
-  'lanthanide':      'Lantanido',
-  'actinide':        'Actinido',
+  'lanthanide':      'Lantánido',
+  'actinide':        'Actínido',
 };
 
 function selectElement(z) {
@@ -1173,13 +1173,13 @@ function renderElementCard(z) {
     const eJ = (iso.energyMeV * 1.60218e-13).toExponential(3);
     const sym = iso.decayType === 'alfa' ? 'α' : iso.decayType === 'beta' ? 'β' : 'γ';
     isoHtml =
-      '<div>Isotopo: <b>' + iso.isotope + '</b></div>' +
+      '<div>Isótopo: <b>' + iso.isotope + '</b></div>' +
       '<div>Vida media: <b>' + hl + '</b></div>' +
       '<div>Emision: <b>' + sym + ' (' + iso.decayType + ')</b></div>' +
-      '<div>Energia/desint.: <b>' + iso.energyMeV + ' MeV = ' + eJ + ' J</b></div>' +
+      '<div>Energía/desint.: <b>' + iso.energyMeV + ' MeV = ' + eJ + ' J</b></div>' +
       '<div>Factor wR: <b>' + iso.wR + '</b></div>';
   } else {
-    isoHtml = '<div style="color:#666;font-style:italic;line-height:1.6;">Elemento estable o sin datos de emision disponibles.</div>';
+    isoHtml = '<div style="color:#666;font-style:italic;line-height:1.6;">Elemento estable o sin datos de emisión disponibles.</div>';
   }
 
   document.getElementById('el-card-container').innerHTML =
@@ -1187,9 +1187,9 @@ function renderElementCard(z) {
       '<div class="el-symbol-big">' + el.s + '</div>' +
       '<div class="el-info">' +
         '<div class="el-info-name">' + el.n + '</div>' +
-        '<div class="el-info-row">Numero atomico: <b>Z = ' + el.z + '</b></div>' +
-        '<div class="el-info-row">Masa atomica: <b>' + el.m + ' u</b></div>' +
-        '<div class="el-info-row">Categoria: <b>' + (CAT_NAMES[el.c] || el.c) + '</b></div>' +
+        '<div class="el-info-row">Número atómico: <b>Z = ' + el.z + '</b></div>' +
+        '<div class="el-info-row">Masa atómica: <b>' + el.m + ' u</b></div>' +
+        '<div class="el-info-row">Categoría: <b>' + (CAT_NAMES[el.c] || el.c) + '</b></div>' +
       '</div>' +
       '<div class="el-isotope-box">' + isoHtml + '</div>' +
     '</div>';
@@ -1201,7 +1201,7 @@ function formatHalfLife(s) {
   if (s < 3600)        return (s / 60).toFixed(2) + ' min';
   if (s < 86400)       return (s / 3600).toFixed(2) + ' h';
   if (s < 31557600)    return (s / 86400).toFixed(2) + ' dias';
-  if (s < 3.1558e10)   return (s / 31557600).toFixed(2) + ' anos';
+  if (s < 3.1558e10)   return (s / 31557600).toFixed(2) + ' años';
   return (s / 31557600).toExponential(3) + ' anos';
 }
 
@@ -1267,9 +1267,9 @@ function calculate() {
 
   const rg = document.getElementById('results-grid');
   rg.innerHTML =
-    resCard('Actividad instantanea',   fmtSci(activity_Bq),  'Bq (desintegraciones/s)') +
+    resCard('Actividad instantánea',   fmtSci(activity_Bq),  'Bq (desintegraciones/s)') +
     resCard('Desintegraciones totales', fmtSci(decays_in_t), 'en ' + fmtTime(timeSeconds)) +
-    resCard('Energia total depositada', fmtSci(energy_J),    'Joules') +
+    resCard('Energía total depositada', fmtSci(energy_J),    'Joules') +
     resCard('Dosis absorbida',          fmtSci(dosis_Gy),    'Gy (a ' + distLabel + ', 1 kg tejido)') +
     resCard('Dosis equivalente',        fmtSci(dosis_Sv),    'Sv  (wR = ' + iso.wR + ', ' + iso.decayType + ')') +
     resCard('Dosis efectiva',           fmtSci(dosis_eff_Sv),'Sv  (wT = ' + wT + ')');
@@ -1294,8 +1294,8 @@ function fmtTime(s) {
   if (s < 60)       return s.toFixed(0) + ' s';
   if (s < 3600)     return (s/60).toFixed(1) + ' min';
   if (s < 86400)    return (s/3600).toFixed(1) + ' h';
-  if (s < 31557600) return (s/86400).toFixed(1) + ' dias';
-  return (s/31557600).toFixed(2) + ' anos';
+  if (s < 31557600) return (s/86400).toFixed(1) + ' días';
+  return (s/31557600).toFixed(2) + ' años';
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -1435,7 +1435,7 @@ function resetAll() {
   document.querySelectorAll('.unit-input').forEach(el => el.value = '');
   document.getElementById('results-section').style.display = 'none';
   document.getElementById('el-card-container').innerHTML =
-    '<p class="el-placeholder">Selecciona un elemento de la tabla periodica para ver sus datos y simular su emision.</p>';
+    '<p class="el-placeholder">Selecciona un elemento de la tabla periódica para ver sus datos y simular su emisión.</p>';
   document.getElementById('params-panel').style.display = 'none';
   if (selectedZ !== null) {
     const c = document.getElementById('el-cell-' + selectedZ);
