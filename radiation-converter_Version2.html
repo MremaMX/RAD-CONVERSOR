@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Conversor de Unidades de Radiacion</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #121212;
+      color: #e0e0e0;
+      padding: 30px 16px 60px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.9rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #ffffff;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #888;
+      font-size: 0.95rem;
+      margin-bottom: 40px;
+    }
+
+    .section {
+      background: #1e1e1e;
+      border-radius: 12px;
+      padding: 28px 32px;
+      margin-bottom: 28px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.4);
+      max-width: 860px;
+      margin-left: auto;
+      margin-right: auto;
+      border: 1px solid #2a2a2a;
+    }
+
+    .section-header {
+      border-left: 5px solid #888;
+      padding-left: 14px;
+      margin-bottom: 10px;
+    }
+
+    .section-header h2 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .section-description {
+      font-size: 0.87rem;
+      color: #777;
+      margin-bottom: 22px;
+      margin-left: 2px;
+      line-height: 1.6;
+    }
+
+    .units-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 14px;
+    }
+
+    .unit-card {
+      background: #2a2a2a;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 14px 16px;
+      transition: border-color 0.2s;
+    }
+
+    .unit-card:focus-within {
+      border-color: #aaa;
+    }
+
+    .unit-card .tag {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #888;
+      background: #333;
+      border-radius: 4px;
+      padding: 2px 7px;
+      margin-bottom: 8px;
+    }
+
+    .unit-card .unit-name {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #e0e0e0;
+      margin-bottom: 1px;
+    }
+
+    .unit-card .unit-symbol {
+      font-size: 0.82rem;
+      color: #666;
+      margin-bottom: 10px;
+      font-style: italic;
+    }
+
+    .unit-card input {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid #444;
+      border-radius: 6px;
+      font-size: 1rem;
+      color: #e0e0e0;
+      background: #1a1a1a;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .unit-card input:focus {
+      border-color: #aaa;
+    }
+
+    .unit-card .unit-desc {
+      font-size: 0.74rem;
+      color: #666;
+      margin-top: 7px;
+      line-height: 1.45;
+    }
+
+    .reset-btn {
+      display: block;
+      margin: 0 auto;
+      background: #2a2a2a;
+      color: #ccc;
+      border: 1px solid #444;
+      border-radius: 8px;
+      padding: 11px 38px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      max-width: 860px;
+      width: 100%;
+    }
+
+    .reset-btn:hover {
+      background: #333;
+      color: #fff;
+    }
+
+    footer {
+      text-align: center;
+      color: #555;
+      font-size: 0.78rem;
+      margin-top: 28px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Conversor de Unidades de Radiacion</h1>
+<p class="subtitle">Escribe un valor en cualquier campo y todos los demas se actualizaran automaticamente.</p>
+
+<!-- ACTIVIDAD RADIACTIVA -->
+<div class="section">
+  <div class="section-header"><h2>Actividad Radiactiva</h2></div>
+  <p class="section-description">
+    Mide cuantas desintegraciones nucleares ocurren por segundo en una fuente radiactiva.
+    Indica que tan "activa" es una sustancia, es decir, con que rapidez emite particulas o energia.
+  </p>
+  <div class="units-grid">
+
+    <div class="unit-card">
+      <span class="tag">SI</span>
+      <div class="unit-name">Becquerel</div>
+      <div class="unit-symbol">Bq</div>
+      <input type="number" id="act_Bq" placeholder="0" oninput="convertGroup(activityFactors, 'act_Bq', this.value)" />
+      <div class="unit-desc">1 desintegracion por segundo. Unidad oficial del Sistema Internacional.</div>
+    </div>
+
+    <div class="unit-card">
+      <span class="tag">SI</span>
+      <div class="unit-name">Kilobecquerel</div>
+      <div class="unit-symbol">kBq</div>
+      <input type="number" id="act_kBq" placeholder="0" oninput="convertGroup(activityFactors, 'act_kBq', this.value)" />
+      <div class="unit-desc">1 kBq = 1,000 Bq.</div>
+    </div>
+
+    <div class="unit-card">
+      <span class="tag">SI</span>
+      <div class="unit-name">Megabecquerel</div>
+      <div class="unit-symbol">MBq</div>
+      <input type="number" id="act_MBq" placeholder="0" oninput="convertGroup(activityFactors, 'act_MBq', this.value)" />
+      <div class="unit-desc">1 MBq = 1,000,000 Bq. Usado en medicina nuclear.</div>
+    </div>
+
+    <div class="unit-card">
+      <span class="tag">SI</span>
+      <div class="unit-name">Gigabecquerel</div>
+      <div class="unit-symbol">GBq</div>
+      <input type="number" id="act_GBq" placeholder="0" oninput="convertGroup(activityFactors, 'act_GBq', this.value)" />
+      <div class="unit-desc">1 GBq = 10^9 Bq. Comun en terapias con radioisotopos.</div>
+    </div>
+
+    <div class="unit-card">
+      <span class="tag">Tradicional</span>
+      <div class="unit-name">Curie</div>
+      <div class="unit-symbol">Ci</div>
+      <input type="number" id="act_Ci" placeholder="0" oninput="convertGroup(activityFactors, 'act_Ci', this.value)" />
+      <div class="unit-desc">1 Ci = 3.7 x 10^10 Bq. Basada en la actividad del Radio-226.</div>
+    </div>
+
+    <div class="unit-card">
+      <span class="tag">Tradicional</span>
+      <div class="unit-name">Milicurie</div>
+      <div class="unit-symbol">mCi</div>
+      <input type="number" id="act_mCi" placeholder="0" oninput="convertGroup(activityFactors, 'act_mCi', this.value)" />
+      <div class="unit-desc">1 mCi = 0.001 Ci = 3.7 x 10^7 Bq.</div>
+    </div>
+
+    <div class="unit-card">
+      <span class="tag">Tradicional</span>
+      <div class="unit-name">Microcurie</div>
+      <div class="unit-symbol">uCi</div>
+      <input type="number" id="act_uCi" placeholder="0" oninput="convertGroup(activityFactors, 'act_uCi', this.value)" />
+      <div class="unit-desc">1 uCi = 10^-6 Ci = 37,000 Bq.</div>
+    </div>
+
+    <div class="unit-card">
+      <span class="tag">Obsoleta</span>
+      <div class="unit-name">Rutherford</div>
+      <div class="unit-symbol">Rd</div>
+      <input type="number" id="act_Rd" placeholder="0" oninput="convertGroup(activityFactors, 'act_Rd', this.value)" />
+      <div class="unit-desc">1 Rd = 10^6 Bq = 10^6 desintegraciones/s. Ya no se usa oficialmente.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- DOSIS ABSORBIDA -->
+<div class="section">
+  <div class="section-header"><h2>Dosis Absorbida</h2></div>
+  <p class="section-description">
+    Mide la energia de radiacion depositada en un material o tejido por unidad de masa.
+    No distingue el tipo de radiacion ni el organo; solo la energia transferida fisicamente.
+  </p>
+  <div class="units-grid">
+
+    <div class="unit-card">
+      <span class="tag">SI</span>
+      <div class="unit-name">Gray</div>
+      <div class="unit-symbol">Gy</div>
+      <input type="number" id="abs_Gy" placeholder="0" oninput="convertGroup(absorbedFactors, 'abs_Gy', this.value)" />
+      <div class="unit-desc">1 Gy = 1 Joule absorbido por kilogramo de materia.</div>
+    </div>
+
+    <div class="unit-card">
+      <span class="tag">SI</span>
+      <div class="unit-name">Miligray</div>
+      <div class="unit-symbol">mGy</div>
+      <input type="number" id="abs_mGy" placeholder="0" oninput="convertGroup(absorbedFactors, 'abs_mGy', this.value)" />
+      <div class="unit-desc">1 mGy = 0.001 Gy.</div>
+    </div>
+
+    <div class="unit-card">
+      <span class="tag">SI</span>
+      <div class="unit-name">Microgray</div>
+      <div class="unit-symbol">uGy</div>
+      <input type="number" id="abs_uGy" placeholder="0" oninput="convertGroup(absorbedFactors, 'abs_uGy', this.value)" />
+      <div class="unit-desc">1 uGy = 10^-6 Gy.</div>
+    </div>
+
+    <div class="unit-card">
+      <span class="tag">Tradicional</span>
+      <div class="unit-name">Rad</div>
+      <div class="unit-symbol">rad</div>
+      <input type="number" id="abs_rad" placeholder="0" oninput="convertGroup(absorbedFactors, 'abs_rad', this.value)" />
+      <div class="unit-desc">1 rad = 0.01 Gy = 100 ergs por gramo. Muy usada antes del SI.</div>
+    </div>
+
+    <div class="unit-card">
+      <span class="tag">Tradicional</span>
+      <div class="unit-name">Milirad</div>
+      <div class="unit-symbol">mrad</div>
+      <input type="number" id="abs_mrad" placeholder="0" oninput="convertGroup(absorbedFactors, 'abs_mrad', this.value)" />
+      <div class="unit-desc">1 mrad = 0.001 rad = 10^-5 Gy.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- DOSIS EQUIVALENTE -->
+<div class="section">
+  <div class="section-header"><h2>Dosis Equivalente</h2></div>
+  <p class="section-description">
+    Pondera la dosis absorbida segun el tipo de radiacion (alfa, beta, gamma, neutrones) para reflejar
+    el dano biologico real en un tejido especifico. Se calcula multiplicando la dosis absorbida
+    por el factor de ponderacion de la radiacion (wR).
+  </p>
+  <div class="units-grid">
+
+    <div class="unit-card">
+      <span class="tag">SI</span>
+      <div class="unit-name">Sievert</div>
+      <div class="unit-symbol">Sv</div>
+      <input type="number" id="eq_Sv" placeholder="0" oninput="convertGroup(equivalentFactors, 'eq_Sv', this.value)" />
+      <div class="unit-desc">Unidad oficial del SI para dano biologico. 1 Sv = Gy x factor wR.</div>
+    </div>
+
+    <div class="unit-card">
+      <span class="tag">SI</span>
+      <div class="unit-name">Milisievert</div>
+      <div class="unit-symbol">mSv</div>
+      <input type="number" id="eq_mSv" placeholder="0" oninput="convertGroup(equivalentFactors, 'eq_mSv', this.value)" />
+      <div class="unit-desc">1 mSv = 0.001 Sv. La radiacion natural anual es aprox. 2-3 mSv.</div>
+    </div>
+
+    <div class="unit-card">
+      <span class="tag">SI</span>
+      <div class="unit-name">Microsievert</div>
+      <div class="unit-symbol">uSv</div>
+      <input type="number" id="eq_uSv" placeholder="0" oninput="convertGroup(equivalentFactors, 'eq_uSv', this.value)" />
+      <div class="unit-desc">1 uSv = 10^-6 Sv. Una radiografia dental equivale a ~5 uSv.</div>
+    </div>
+
+    <div class="unit-card">
+      <span class="tag">Tradicional</span>
+      <div class="unit-name">Rem</div>
+      <div class="unit-symbol">rem</div>
+      <input type="number" id="eq_rem" placeholder="0" oninput="convertGroup(equivalentFactors, 'eq_rem', this.value)" />
+      <div class="unit-desc">1 rem = 0.01 Sv. Del ingles "Roentgen Equivalent Man".</div>
+    </div>
+
+    <div class="unit-card">
+      <span class="tag">Tradicional</span>
+      <div class="unit-name">Milirem</div>
+      <div class="unit-symbol">mrem</div>
+      <input type="number" id="eq_mrem" placeholder="0" oninput="convertGroup(equivalentFactors, 'eq_mrem', this.value)" />
+      <div class="unit-desc">1 mrem = 0.001 rem = 10^-5 Sv.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- EXPOSICION -->
+<div class="section">
+  <div class="section-header"><h2>Exposicion / Ionizacion en Aire</h2></div>
+  <p class="section-description">
+    Mide la capacidad de los rayos X o gamma para ionizar el aire. Cuantifica la carga electrica
+    producida en una masa de aire seco. Solo aplica a radiacion electromagnetica en el aire,
+    no directamente en tejidos biologicos.
+  </p>
+  <div class="units-grid">
+
+    <div class="unit-card">
+      <span class="tag">SI</span>
+      <div class="unit-name">Coulomb por kilogramo</div>
+      <div class="unit-symbol">C/kg</div>
+      <input type="number" id="exp_Ckg" placeholder="0" oninput="convertGroup(exposureFactors, 'exp_Ckg', this.value)" />
+      <div class="unit-desc">Unidad oficial del SI para exposicion en aire.</div>
+    </div>
+
+    <div class="unit-card">
+      <span class="tag">Tradicional</span>
+      <div class="unit-name">Roentgen</div>
+      <div class="unit-symbol">R</div>
+      <input type="number" id="exp_R" placeholder="0" oninput="convertGroup(exposureFactors, 'exp_R', this.value)" />
+      <div class="unit-desc">1 R = 2.58 x 10^-4 C/kg. La unidad historica mas antigua de la radiacion.</div>
+    </div>
+
+    <div class="unit-card">
+      <span class="tag">Tradicional</span>
+      <div class="unit-name">Milliroentgen</div>
+      <div class="unit-symbol">mR</div>
+      <input type="number" id="exp_mR" placeholder="0" oninput="convertGroup(exposureFactors, 'exp_mR', this.value)" />
+      <div class="unit-desc">1 mR = 0.001 R = 2.58 x 10^-7 C/kg.</div>
+    </div>
+
+    <div class="unit-card">
+      <span class="tag">Tradicional</span>
+      <div class="unit-name">Microroentgen</div>
+      <div class="unit-symbol">uR</div>
+      <input type="number" id="exp_uR" placeholder="0" oninput="convertGroup(exposureFactors, 'exp_uR', this.value)" />
+      <div class="unit-desc">1 uR = 10^-6 R = 2.58 x 10^-10 C/kg.</div>
+    </div>
+
+  </div>
+</div>
+
+<button class="reset-btn" onclick="resetAll()">Limpiar todos los campos</button>
+
+<footer>
+  <p style="margin-top:24px;">Conversiones basadas en factores oficiales del BIPM e ICRP.</p>
+</footer>
+
+<script>
+  /*
+   * Cada objeto mapea: id_del_input -> factor_para_convertir_a_unidad_base
+   * Unidad base de cada grupo:
+   *   Actividad   -> Bq
+   *   Absorbida   -> Gy
+   *   Equivalente -> Sv
+   *   Exposicion  -> C/kg
+   */
+
+  const activityFactors = {
+    act_Bq:  1,
+    act_kBq: 1e3,
+    act_MBq: 1e6,
+    act_GBq: 1e9,
+    act_Ci:  3.7e10,
+    act_mCi: 3.7e7,
+    act_uCi: 3.7e4,
+    act_Rd:  1e6
+  };
+
+  const absorbedFactors = {
+    abs_Gy:   1,
+    abs_mGy:  1e-3,
+    abs_uGy:  1e-6,
+    abs_rad:  1e-2,
+    abs_mrad: 1e-5
+  };
+
+  const equivalentFactors = {
+    eq_Sv:   1,
+    eq_mSv:  1e-3,
+    eq_uSv:  1e-6,
+    eq_rem:  1e-2,
+    eq_mrem: 1e-5
+  };
+
+  const exposureFactors = {
+    exp_Ckg: 1,
+    exp_R:   2.58e-4,
+    exp_mR:  2.58e-7,
+    exp_uR:  2.58e-10
+  };
+
+  /**
+   * Funcion universal de conversion.
+   * @param {Object} factors  - mapa id -> factor_a_base
+   * @param {string} sourceId - id del campo que el usuario escribio
+   * @param {string} rawValue - valor escrito por el usuario
+   */
+  function convertGroup(factors, sourceId, rawValue) {
+    if (rawValue === '' || rawValue === null) {
+      // Si se borra el campo, limpiar todos los del grupo
+      Object.keys(factors).forEach(id => {
+        if (id !== sourceId) {
+          const el = document.getElementById(id);
+          if (el) el.value = '';
+        }
+      });
+      return;
+    }
+
+    const num = parseFloat(rawValue);
+    if (isNaN(num)) return;
+
+    // Convertir valor de entrada a unidad base
+    const baseValue = num * factors[sourceId];
+
+    // Distribuir a todos los demas campos del grupo
+    Object.entries(factors).forEach(([id, factor]) => {
+      if (id === sourceId) return;
+      const el = document.getElementById(id);
+      if (el) el.value = formatNum(baseValue / factor);
+    });
+  }
+
+  function formatNum(n) {
+    if (!isFinite(n) || isNaN(n)) return '';
+    if (n === 0) return '0';
+    const abs = Math.abs(n);
+    if (abs >= 1e-9 && abs < 1e12) {
+      return parseFloat(n.toPrecision(10)).toString();
+    }
+    return n.toExponential(6);
+  }
+
+  function resetAll() {
+    document.querySelectorAll('input[type="number"]').forEach(el => el.value = '');
+  }
+</script>
+</body>
+</html>
